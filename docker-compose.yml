@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: duelmind
+      POSTGRES_PASSWORD: duelmind_secret
+      POSTGRES_DB: duelmind
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duelmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://duelmind:duelmind_secret@postgres:5432/duelmind
+      JWT_SECRET: "CHANGE_THIS_IN_PRODUCTION_LONG_RANDOM_SECRET_64_CHARS"
+      JWT_REFRESH_SECRET: "CHANGE_THIS_REFRESH_SECRET_ALSO_64_CHARS_MINIMUM"
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      PORT: 4000
+      NODE_ENV: production
+      CORS_ORIGIN: "http://localhost:5173,http://localhost:5174"
+      MIN_REACTION_MS: 100
+      MAX_SCORE_MULTIPLIER: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  postgres_data:
+  uploads_data:

@@ -1,0 +1,1 @@
+export { adminGamesRouter } from './categories'

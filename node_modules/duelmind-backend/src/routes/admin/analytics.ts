@@ -1,0 +1,1 @@
+export { adminAnalyticsRouter } from './categories'
