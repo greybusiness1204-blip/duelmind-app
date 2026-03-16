@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -11,10 +11,10 @@ COPY src ./src
 RUN npx prisma generate
 RUN npx tsc
 
-FROM node:20-alpine AS runner
+FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 
-RUN apk add --no-cache dumb-init
+RUN apt-get update && apt-get install -y openssl dumb-init && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
