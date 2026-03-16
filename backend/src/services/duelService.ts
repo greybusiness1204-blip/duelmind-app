@@ -51,7 +51,7 @@ export const duelService = {
   async getQuestions(duelId: string) {
     const duel = await prisma.duel.findUnique({ where: { id: duelId } })
     if (!duel) throw new Error('Duel not found')
-    const cfg = duel.config as DuelConfig
+    const config = something as unknown as DuelConfig
     return triviaEngine.selectQuestions({
       userId: duel.creatorId,
       categoryId: cfg.categoryId,
