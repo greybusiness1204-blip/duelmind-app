@@ -49,18 +49,20 @@ export const duelService = {
   },
 
   async getQuestions(duelId: string) {
-    const duel = await prisma.duel.findUnique({ where: { id: duelId } })
-    if (!duel) throw new Error('Duel not found')
-    const config = something as unknown as DuelConfig
-    return triviaEngine.selectQuestions({
-      userId: duel.creatorId,
-      categoryId: cfg.categoryId,
-      difficulty: cfg.difficulty,
-      language: (cfg.language as Language) || Language.en,
-      count: (cfg.rounds || 3) + 3,
-      context: 'DUEL',
-    })
-  },
+  const duel = await prisma.duel.findUnique({ where: { id: duelId } })
+  if (!duel) throw new Error('Duel not found')
+
+  const config = duel.config as unknown as DuelConfig
+
+  return triviaEngine.selectQuestions({
+    userId: duel.creatorId,
+    categoryId: config.categoryId,
+    difficulty: config.difficulty,
+    language: config.language || Language.en,
+    count: (config.rounds || 3) + 3,
+    context: 'DUEL',
+  })
+},
 
   async completeDuel(
     duelId: string,
